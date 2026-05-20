@@ -1,0 +1,226 @@
+I want to build a complete AI chatbot for a Ugandan school website.
+ 
+The school is Amus College School (amuscollegeschool.com), a premier boarding secondary school in Bukedea District, Uganda. The website is a static HTML/CSS site built by Vanta Digital.
+ 
+The chatbot assistant is named "Amara" and should be styled in the school's brand colours: Red (#CC0000), Yellow (#FFD700), and Dark Navy (#0D1B2A).
+ 
+---
+ 
+WHAT I NEED YOU TO BUILD:
+ 
+Please build the following files in a folder called `acs-chatbot/`:
+ 
+1. `server.js` — Node.js/Express backend that:
+   - Accepts POST requests to /api/chat with { message, history } in the body
+   - Loads acs-knowledge.txt as a system context file
+   - Calls the Anthropic Claude API (model: claude-sonnet-4-20250514)
+   - Passes the last 6 messages of conversation history for context
+   - Returns the assistant's reply as JSON: { reply: "..." }
+   - Uses CORS to allow requests from any origin (the static website will call it)
+   - Uses express-rate-limit to allow max 20 requests per minute per IP
+   - Uses dotenv to load ANTHROPIC_API_KEY from a .env file
+   - Serves the widget.js file statically from the /public folder
+   - Has a /health endpoint that returns { status: "ok" }
+   - Logs errors clearly to the console
+ 
+2. `public/widget.js` — Frontend chat widget (vanilla JavaScript, no frameworks) that:
+   - Injects a floating chat bubble in the bottom-right corner of any webpage it is added to
+   - When clicked, opens a chat window (400px wide, 550px tall on desktop; full screen on mobile)
+   - Chat window header shows the ACS logo (src: https://amuscollegeschool.com/images/logo.png), the name "Amara" in bold, and the tagline "ACS Assistant • Online"
+   - Displays a welcome message on first open: "Hello! I'm Amara, the AI assistant for Amus College School. How can I help you today? 👋"
+   - Shows 4 quick-reply suggestion buttons on first open:
+     * "How do I apply?"
+     * "What are the fees?"
+     * "Tell me about sports"
+     * "Do you offer scholarships?"
+   - User messages appear on the right in a red bubble (#CC0000, white text)
+   - Amara's replies appear on the left in a light grey bubble (#F1F1F1, dark text)
+   - Shows a "Amara is typing..." indicator with 3 animated dots while waiting for a response
+   - Has a text input field at the bottom with a send button (styled in red)
+   - Pressing Enter or clicking Send submits the message
+   - Auto-scrolls to the latest message
+   - The floating bubble is red (#CC0000) with a white chat icon
+   - Has a close (✕) button to collapse the chat window
+   - Reads the backend URL from window.ACS_CHATBOT_URL (fallback: http://localhost:3000)
+   - Sends { message: userText, history: [...last 6 messages...] } to the backend
+   - Is fully mobile responsive — on screens under 480px it opens full screen
+   - Adds a subtle box shadow and rounded corners to the chat window
+   - The widget self-initialises when the script loads — no extra setup needed
+ 
+3. `acs-knowledge.txt` — Leave this as an empty placeholder with the comment:
+   "# PASTE THE CONTENTS OF acs-knowledge.txt HERE"
+   (I will paste the real content in myself)
+ 
+4. `package.json` — with the following dependencies:
+   - express
+   - cors
+   - dotenv
+   - @anthropic-ai/sdk
+   - express-rate-limit
+   And a start script: "node server.js"
+ 
+5. `.env.example` — showing:
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   PORT=3000
+ 
+6. `README.md` — with:
+   - A brief description of the project
+   - Step-by-step local setup instructions (npm install, add .env, node server.js)
+   - Step-by-step Railway deployment instructions
+   - How to embed the widget on the ACS website (the two script tags)
+   - How to update the knowledge base
+ 
+---
+ 
+SYSTEM PROMPT TO USE IN server.js:
+ 
+Use this exact system prompt when calling the Claude API — paste it as a template literal in the code:
+ 
+```
+You are Amara, the friendly and knowledgeable AI assistant for Amus College School, Uganda.
+The school motto is "Let There Be Light."
+ 
+Your role is to help prospective students, parents, current students, and visitors by answering 
+questions about the school. You are warm, encouraging, and professional — like a helpful 
+member of the school's front office team.
+ 
+STRICT RULES:
+1. ONLY answer using the information in the KNOWLEDGE BASE below. Never invent or assume facts.
+2. If someone asks something not covered in the knowledge base, say exactly:
+   "That's a great question! For the most accurate answer, please contact our team directly:
+   📞 +256 782 442 940
+   ✉️ amuscollegeschool@gmail.com
+   💬 WhatsApp: +256 782 442 940"
+3. Keep answers concise and friendly — 2 to 4 sentences for simple questions.
+4. For longer answers (fees, admissions process), use clear bullet points or numbered steps.
+5. Whenever someone asks about admissions or how to apply, always include this link at the end:
+   👉 Apply here: https://amuscollegeschool.com/admissions
+6. Never discuss, compare, or mention competitor schools.
+7. Always be positive and encouraging about Amus College School.
+8. If someone seems interested in enrolling, warmly encourage them and point them to admissions.
+9. You may use a small number of relevant emojis (🎓⚽🏀🎵✅📞) to keep responses friendly.
+10. Always respond in the same language the user is writing in.
+ 
+KNOWLEDGE BASE:
+${knowledgeBase}
+```
+ 
+---
+ 
+IMPORTANT TECHNICAL NOTES:
+- Use fs.readFileSync to load acs-knowledge.txt when the server starts, not on every request
+- The conversation history sent from the frontend is an array of { role: "user"|"assistant", content: "..." } objects — pass these directly to the Claude messages array, then append the new user message at the end
+- Make sure CORS headers are set correctly so the static website can call the API from a different domain
+- The widget.js must work when loaded via a <script> tag on any HTML page — it cannot use ES modules or require()
+- Handle API errors gracefully — if the Claude API fails, return a friendly error message to the user instead of crashing
+ 
+---
+ 
+AFTER YOU BUILD EVERYTHING, please:
+1. Show me the complete folder structure
+2. Tell me the exact command to install dependencies
+3. Tell me how to run it locally to test
+4. Remind me to paste my knowledge base content into acs-knowledge.txt before running
+ 
+=== END OF PROMPT ===
+ 
+ 
+ 
+ 
+=============================================================
+AFTER CLAUDE CODE FINISHES — YOUR NEXT STEPS
+=============================================================
+ 
+STEP 1 — PASTE THE KNOWLEDGE BASE
+Open the file: acs-chatbot/acs-knowledge.txt
+Delete the placeholder comment and paste the full contents of acs-knowledge.txt
+ 
+STEP 2 — ADD YOUR API KEY
+Copy the file .env.example and rename the copy to .env
+Open .env and replace "your_anthropic_api_key_here" with your real Anthropic API key
+(Get your key from: https://console.anthropic.com)
+NEVER commit the .env file to GitHub — it is already in .gitignore
+ 
+STEP 3 — INSTALL AND TEST LOCALLY
+Run these commands in the acs-chatbot/ folder:
+   npm install
+   node server.js
+Then open a browser and go to http://localhost:3000/health
+You should see: { "status": "ok" }
+Then open any HTML file and add the two script tags to test the widget.
+ 
+STEP 4 — DEPLOY TO RAILWAY
+1. Create a free account at railway.app
+2. Create a new GitHub repository called "acs-chatbot"
+3. Push your acs-chatbot/ folder to that repo (DO NOT push the .env file)
+4. In Railway: click "New Project" → "Deploy from GitHub repo" → select acs-chatbot
+5. Go to Variables → Add Variable:
+      Name:  ANTHROPIC_API_KEY
+      Value: (your real API key)
+6. Railway will give you a live URL like: https://acs-chatbot-production.up.railway.app
+7. Copy that URL — you will need it for the next step.
+ 
+STEP 5 — EMBED ON THE ACS WEBSITE
+Send these two lines of code to Vanta Digital (who built the ACS website) and ask them
+to add them just before the closing </body> tag on every page of amuscollegeschool.com:
+ 
+<!-- ACS Chatbot Widget -->
+<script>window.ACS_CHATBOT_URL = 'https://YOUR-RAILWAY-URL-HERE';</script>
+<script src="https://YOUR-RAILWAY-URL-HERE/widget.js"></script>
+ 
+Replace YOUR-RAILWAY-URL-HERE with the actual URL Railway gave you in Step 4.
+ 
+STEP 6 — TEST ON THE LIVE WEBSITE
+Visit www.amuscollegeschool.com on both desktop and mobile.
+You should see a red floating chat bubble in the bottom-right corner.
+Click it and test several questions:
+   - "How do I apply?"
+   - "What are the school fees?"
+   - "Tell me about football"
+   - "Does ACS offer scholarships?"
+ 
+STEP 7 — SHARE AND GATHER FEEDBACK
+Share the chatbot with the ACS headmaster and staff.
+Ask them to try it and flag any answers that are wrong or missing.
+Update acs-knowledge.txt with any corrections, then redeploy.
+ 
+=============================================================
+TROUBLESHOOTING
+=============================================================
+ 
+PROBLEM: The chat bubble does not appear on the website
+FIX: Make sure both script tags were added correctly. Check the browser console (F12)
+     for errors. Confirm the Railway URL is correct with no trailing slash.
+ 
+PROBLEM: Amara says "I don't know" to basic questions
+FIX: The answer is probably missing from acs-knowledge.txt. Add it in Q: / A: format
+     and redeploy.
+ 
+PROBLEM: API errors / "something went wrong" messages
+FIX: Check your ANTHROPIC_API_KEY is set correctly in Railway Variables.
+     Check the Railway logs for the exact error message.
+ 
+PROBLEM: The widget looks broken on mobile
+FIX: Claude Code built mobile responsiveness in — if it looks off, share a screenshot
+     and ask Claude Code to fix the CSS for screens under 480px.
+ 
+PROBLEM: Fees are wrong or out of date
+FIX: Open acs-knowledge.txt, find Section 5 (Fees), update the numbers, save, push to
+     GitHub. Railway will redeploy automatically.
+ 
+=============================================================
+CONTACTS FOR THIS PROJECT
+=============================================================
+ 
+Amus College School:    amuscollegeschool@gmail.com / +256 782 442 940
+Website builder:        Vanta Digital (vantadigital.co) — needed for embedding the widget
+Anthropic API console:  console.anthropic.com — to get/manage your API key
+Railway hosting:        railway.app — to deploy and manage the backend server
+ 
+=============================================================
+END OF DOCUMENT
+=============================================================
+ 
+
+
+
