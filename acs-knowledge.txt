@@ -1,226 +1,386 @@
-I want to build a complete AI chatbot for a Ugandan school website.
- 
-The school is Amus College School (amuscollegeschool.com), a premier boarding secondary school in Bukedea District, Uganda. The website is a static HTML/CSS site built by Vanta Digital.
- 
-The chatbot assistant is named "Amara" and should be styled in the school's brand colours: Red (#CC0000), Yellow (#FFD700), and Dark Navy (#0D1B2A).
- 
----
- 
-WHAT I NEED YOU TO BUILD:
- 
-Please build the following files in a folder called `acs-chatbot/`:
- 
-1. `server.js` — Node.js/Express backend that:
-   - Accepts POST requests to /api/chat with { message, history } in the body
-   - Loads acs-knowledge.txt as a system context file
-   - Calls the Anthropic Claude API (model: claude-sonnet-4-20250514)
-   - Passes the last 6 messages of conversation history for context
-   - Returns the assistant's reply as JSON: { reply: "..." }
-   - Uses CORS to allow requests from any origin (the static website will call it)
-   - Uses express-rate-limit to allow max 20 requests per minute per IP
-   - Uses dotenv to load ANTHROPIC_API_KEY from a .env file
-   - Serves the widget.js file statically from the /public folder
-   - Has a /health endpoint that returns { status: "ok" }
-   - Logs errors clearly to the console
- 
-2. `public/widget.js` — Frontend chat widget (vanilla JavaScript, no frameworks) that:
-   - Injects a floating chat bubble in the bottom-right corner of any webpage it is added to
-   - When clicked, opens a chat window (400px wide, 550px tall on desktop; full screen on mobile)
-   - Chat window header shows the ACS logo (src: https://amuscollegeschool.com/images/logo.png), the name "Amara" in bold, and the tagline "ACS Assistant • Online"
-   - Displays a welcome message on first open: "Hello! I'm Amara, the AI assistant for Amus College School. How can I help you today? 👋"
-   - Shows 4 quick-reply suggestion buttons on first open:
-     * "How do I apply?"
-     * "What are the fees?"
-     * "Tell me about sports"
-     * "Do you offer scholarships?"
-   - User messages appear on the right in a red bubble (#CC0000, white text)
-   - Amara's replies appear on the left in a light grey bubble (#F1F1F1, dark text)
-   - Shows a "Amara is typing..." indicator with 3 animated dots while waiting for a response
-   - Has a text input field at the bottom with a send button (styled in red)
-   - Pressing Enter or clicking Send submits the message
-   - Auto-scrolls to the latest message
-   - The floating bubble is red (#CC0000) with a white chat icon
-   - Has a close (✕) button to collapse the chat window
-   - Reads the backend URL from window.ACS_CHATBOT_URL (fallback: http://localhost:3000)
-   - Sends { message: userText, history: [...last 6 messages...] } to the backend
-   - Is fully mobile responsive — on screens under 480px it opens full screen
-   - Adds a subtle box shadow and rounded corners to the chat window
-   - The widget self-initialises when the script loads — no extra setup needed
- 
-3. `acs-knowledge.txt` — Leave this as an empty placeholder with the comment:
-   "# PASTE THE CONTENTS OF acs-knowledge.txt HERE"
-   (I will paste the real content in myself)
- 
-4. `package.json` — with the following dependencies:
-   - express
-   - cors
-   - dotenv
-   - @anthropic-ai/sdk
-   - express-rate-limit
-   And a start script: "node server.js"
- 
-5. `.env.example` — showing:
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
-   PORT=3000
- 
-6. `README.md` — with:
-   - A brief description of the project
-   - Step-by-step local setup instructions (npm install, add .env, node server.js)
-   - Step-by-step Railway deployment instructions
-   - How to embed the widget on the ACS website (the two script tags)
-   - How to update the knowledge base
- 
----
- 
-SYSTEM PROMPT TO USE IN server.js:
- 
-Use this exact system prompt when calling the Claude API — paste it as a template literal in the code:
- 
-```
-You are Amara, the friendly and knowledgeable AI assistant for Amus College School, Uganda.
-The school motto is "Let There Be Light."
- 
-Your role is to help prospective students, parents, current students, and visitors by answering 
-questions about the school. You are warm, encouraging, and professional — like a helpful 
-member of the school's front office team.
- 
-STRICT RULES:
-1. ONLY answer using the information in the KNOWLEDGE BASE below. Never invent or assume facts.
-2. If someone asks something not covered in the knowledge base, say exactly:
-   "That's a great question! For the most accurate answer, please contact our team directly:
-   📞 +256 782 442 940
-   ✉️ amuscollegeschool@gmail.com
-   💬 WhatsApp: +256 782 442 940"
-3. Keep answers concise and friendly — 2 to 4 sentences for simple questions.
-4. For longer answers (fees, admissions process), use clear bullet points or numbered steps.
-5. Whenever someone asks about admissions or how to apply, always include this link at the end:
-   👉 Apply here: https://amuscollegeschool.com/admissions
-6. Never discuss, compare, or mention competitor schools.
-7. Always be positive and encouraging about Amus College School.
-8. If someone seems interested in enrolling, warmly encourage them and point them to admissions.
-9. You may use a small number of relevant emojis (🎓⚽🏀🎵✅📞) to keep responses friendly.
-10. Always respond in the same language the user is writing in.
- 
-KNOWLEDGE BASE:
-${knowledgeBase}
-```
- 
----
- 
-IMPORTANT TECHNICAL NOTES:
-- Use fs.readFileSync to load acs-knowledge.txt when the server starts, not on every request
-- The conversation history sent from the frontend is an array of { role: "user"|"assistant", content: "..." } objects — pass these directly to the Claude messages array, then append the new user message at the end
-- Make sure CORS headers are set correctly so the static website can call the API from a different domain
-- The widget.js must work when loaded via a <script> tag on any HTML page — it cannot use ES modules or require()
-- Handle API errors gracefully — if the Claude API fails, return a friendly error message to the user instead of crashing
- 
----
- 
-AFTER YOU BUILD EVERYTHING, please:
-1. Show me the complete folder structure
-2. Tell me the exact command to install dependencies
-3. Tell me how to run it locally to test
-4. Remind me to paste my knowledge base content into acs-knowledge.txt before running
- 
-=== END OF PROMPT ===
- 
- 
- 
- 
 =============================================================
-AFTER CLAUDE CODE FINISHES — YOUR NEXT STEPS
+ACS KNOWLEDGE BASE
+Amus College School — AI Chatbot Knowledge Base
+Last updated: May 2025
 =============================================================
- 
-STEP 1 — PASTE THE KNOWLEDGE BASE
-Open the file: acs-chatbot/acs-knowledge.txt
-Delete the placeholder comment and paste the full contents of acs-knowledge.txt
- 
-STEP 2 — ADD YOUR API KEY
-Copy the file .env.example and rename the copy to .env
-Open .env and replace "your_anthropic_api_key_here" with your real Anthropic API key
-(Get your key from: https://console.anthropic.com)
-NEVER commit the .env file to GitHub — it is already in .gitignore
- 
-STEP 3 — INSTALL AND TEST LOCALLY
-Run these commands in the acs-chatbot/ folder:
-   npm install
-   node server.js
-Then open a browser and go to http://localhost:3000/health
-You should see: { "status": "ok" }
-Then open any HTML file and add the two script tags to test the widget.
- 
-STEP 4 — DEPLOY TO RAILWAY
-1. Create a free account at railway.app
-2. Create a new GitHub repository called "acs-chatbot"
-3. Push your acs-chatbot/ folder to that repo (DO NOT push the .env file)
-4. In Railway: click "New Project" → "Deploy from GitHub repo" → select acs-chatbot
-5. Go to Variables → Add Variable:
-      Name:  ANTHROPIC_API_KEY
-      Value: (your real API key)
-6. Railway will give you a live URL like: https://acs-chatbot-production.up.railway.app
-7. Copy that URL — you will need it for the next step.
- 
-STEP 5 — EMBED ON THE ACS WEBSITE
-Send these two lines of code to Vanta Digital (who built the ACS website) and ask them
-to add them just before the closing </body> tag on every page of amuscollegeschool.com:
- 
-<!-- ACS Chatbot Widget -->
-<script>window.ACS_CHATBOT_URL = 'https://YOUR-RAILWAY-URL-HERE';</script>
-<script src="https://YOUR-RAILWAY-URL-HERE/widget.js"></script>
- 
-Replace YOUR-RAILWAY-URL-HERE with the actual URL Railway gave you in Step 4.
- 
-STEP 6 — TEST ON THE LIVE WEBSITE
-Visit www.amuscollegeschool.com on both desktop and mobile.
-You should see a red floating chat bubble in the bottom-right corner.
-Click it and test several questions:
-   - "How do I apply?"
-   - "What are the school fees?"
-   - "Tell me about football"
-   - "Does ACS offer scholarships?"
- 
-STEP 7 — SHARE AND GATHER FEEDBACK
-Share the chatbot with the ACS headmaster and staff.
-Ask them to try it and flag any answers that are wrong or missing.
-Update acs-knowledge.txt with any corrections, then redeploy.
- 
+
+INSTRUCTIONS FOR WHOEVER MAINTAINS THIS FILE:
+- This file is the chatbot's entire brain. Amara only knows what is written here.
+- Update this file whenever school information changes (new term dates, fee changes, new achievements, etc.)
+- Format: Q: [question] then A: [answer] — keep it consistent.
+- Never leave a question with a vague or incomplete answer.
 =============================================================
-TROUBLESHOOTING
-=============================================================
- 
-PROBLEM: The chat bubble does not appear on the website
-FIX: Make sure both script tags were added correctly. Check the browser console (F12)
-     for errors. Confirm the Railway URL is correct with no trailing slash.
- 
-PROBLEM: Amara says "I don't know" to basic questions
-FIX: The answer is probably missing from acs-knowledge.txt. Add it in Q: / A: format
-     and redeploy.
- 
-PROBLEM: API errors / "something went wrong" messages
-FIX: Check your ANTHROPIC_API_KEY is set correctly in Railway Variables.
-     Check the Railway logs for the exact error message.
- 
-PROBLEM: The widget looks broken on mobile
-FIX: Claude Code built mobile responsiveness in — if it looks off, share a screenshot
-     and ask Claude Code to fix the CSS for screens under 480px.
- 
-PROBLEM: Fees are wrong or out of date
-FIX: Open acs-knowledge.txt, find Section 5 (Fees), update the numbers, save, push to
-     GitHub. Railway will redeploy automatically.
- 
-=============================================================
-CONTACTS FOR THIS PROJECT
-=============================================================
- 
-Amus College School:    amuscollegeschool@gmail.com / +256 782 442 940
-Website builder:        Vanta Digital (vantadigital.co) — needed for embedding the widget
-Anthropic API console:  console.anthropic.com — to get/manage your API key
-Railway hosting:        railway.app — to deploy and manage the backend server
- 
-=============================================================
-END OF DOCUMENT
-=============================================================
- 
 
 
+=============================================================
+SECTION 1 — SCHOOL IDENTITY & OVERVIEW
+=============================================================
 
+Q: What is Amus College School?
+A: Amus College School (ACS) is a premier secondary boarding school located in Bukedea District, eastern Uganda. Founded on the belief that education extends beyond the classroom, ACS nurtures academic excellence, moral character, sporting talent, and artistic brilliance. The school was ranked 3rd in Uganda in 2023 and has produced East African champions in football and basketball, national MDD finalists, and hundreds of university graduates.
+
+Q: What is the school motto?
+A: The motto of Amus College School is "Let There Be Light." It reflects the school's mission to illuminate the minds, character, and futures of every student who passes through its gates.
+
+Q: What does ACS stand for?
+A: ACS stands for Amus College School.
+
+Q: Where is Amus College School located?
+A: Amus College School is located at Sapir Hill, Kachumbala County, Bukedea District, Uganda. P.O Box 2058, Mbale — Uganda.
+
+Q: How can I contact Amus College School?
+A: You can reach us through any of the following:
+- Phone: +256 782 442 940 / +256 772 303 282 / +256 779 964 478
+- Email: amuscollegeschool@gmail.com
+- Website: www.amuscollegeschool.com
+- WhatsApp: +256 782 442 940 or +256 779 964 478
+
+Q: What are the school's office hours?
+A: For the most accurate office hours, please call us on +256 782 442 940 or email amuscollegeschool@gmail.com and our team will be happy to assist.
+
+Q: Who is the headmaster of Amus College School?
+A: The headmaster is Mr. Olupot Richard. The Deputy Headmaster in charge of Academics is Mr. Mpagi Nathan.
+
+Q: Who are the directors of Amus College School?
+A: The school is directed by Hon. Opolot Patrick Isiagi and Mrs. Pedun Josephine. The Resident Director is Mr. Okiring Andrew Isiagi.
+
+Q: Does the school have social media pages?
+A: Yes! Follow and connect with Amus College School on:
+- Facebook: facebook.com/profile.php?id=100064147710909
+- X (Twitter): x.com/amuscollege
+- YouTube: youtube.com/@amussportsacademy
+- TikTok: tiktok.com/@amuscollegeschooll
+
+Q: Is Amus College School a boarding school?
+A: Yes. Amus College School is a boarding school. We have separate dormitory facilities for boys and girls. The girls' dormitory is fully complete and operational. A brand new boys' dormitory is currently under construction and is expected to be ready by the end of 2025, further expanding our capacity.
+
+Q: How many students does Amus College School have?
+A: Amus College School has over 1,000 students enrolled. In 2024 alone, 350 students were enrolled under academic and football scholarship programmes.
+
+Q: How many teachers does ACS have?
+A: Amus College School has over 40 qualified and experienced teachers dedicated to the growth and success of our students.
+
+
+=============================================================
+SECTION 2 — ACADEMIC PROGRAMS
+=============================================================
+
+Q: What academic programs does Amus College School offer?
+A: Amus College School offers the following programs:
+1. O-Level (UCE) — Senior 1 to Senior 4
+2. A-Level (UACE) — Senior 5 to Senior 6
+3. Music, Dance & Drama (MDD)
+4. Sports & Athletics
+5. ICT & Technology
+6. Scouting
+
+Q: What is the O-Level program at ACS?
+A: The O-Level program (Uganda Certificate of Education) runs from Senior 1 to Senior 4. It follows the Uganda National Examinations Board (UNEB) curriculum and prepares students thoroughly for national examinations. The program covers sciences, humanities, languages, and arts subjects, giving students a well-rounded foundation.
+
+Q: What is the A-Level program at ACS?
+A: The A-Level program (Uganda Advanced Certificate of Education) runs from Senior 5 to Senior 6. Students choose subject combinations that align with their intended university courses and career paths. ACS has an outstanding A-Level track record, with many students securing government-sponsored university placements on national merit.
+
+Q: Does ACS offer ICT and Technology?
+A: Yes. Amus College School offers ICT and Technology as part of its curriculum, giving students hands-on computer education that prepares them for the digital economy of the 21st century.
+
+Q: What is the pass rate at Amus College School?
+A: Amus College School maintains a 95% pass rate, one of the highest in Uganda, reflecting the dedication of our students and the quality of our teaching staff.
+
+
+=============================================================
+SECTION 3 — ACADEMIC RESULTS & ACHIEVEMENTS
+=============================================================
+
+Q: How has Amus College School performed academically?
+A: Amus College School has built one of the most consistent academic records in Uganda:
+- Ranked 3rd in Uganda in 2023
+- In 2024: 3 students scored a perfect 20 out of 20 points; 44 students gained university admission on national merit (government sponsorship)
+- In 2025: 18 students scored a perfect 20 out of 20 points; 43 students gained university admission on national merit
+- In 2024: 146 Senior Four candidates and 200 Senior Six candidates sat their UNEB examinations successfully
+
+Q: How many ACS students got into university on government sponsorship?
+A: In 2024, 44 students were admitted to public universities on national merit. In 2025, 43 students secured government-sponsored university admissions — a remarkable and consistent achievement.
+
+Q: How many students scored 20 out of 20?
+A: In 2024, three students achieved the perfect score of 20 out of 20 points. In 2025, that number rose to 18 students — a testament to our growing academic excellence.
+
+Q: Is Amus College School a good school academically?
+A: Absolutely. Amus College School was ranked 3rd in Uganda in 2023, maintains a 95% pass rate, and consistently sends dozens of students to university on government sponsorship every year. Our innovative teaching methods and nurturing environment have been recognised by our headmaster and academic leadership as key drivers of student success.
+
+
+=============================================================
+SECTION 4 — ADMISSIONS
+=============================================================
+
+Q: How do I apply to Amus College School?
+A: You can apply online by visiting our admissions page at: https://amuscollegeschool.com/admissions
+You can also contact the school directly by phone at +256 782 442 940 or by email at amuscollegeschool@gmail.com to get guidance on the application process.
+
+Q: Is Amus College School currently accepting applications?
+A: Yes! Admissions are currently open for the 2025/2026 academic year. Slots are limited so we encourage early application. Visit https://amuscollegeschool.com/admissions to apply today.
+
+Q: What are the admission requirements for O-Level (Senior 1)?
+A: For admission into Senior 1 (O-Level), students are generally required to have completed Primary Seven (P7) and have their Primary Leaving Examination (PLE) results. For specific grade requirements and the latest admission criteria, please contact the school at amuscollegeschool@gmail.com or call +256 782 442 940.
+
+Q: What are the admission requirements for A-Level (Senior 5)?
+A: For admission into Senior 5 (A-Level), students need to have completed O-Level and obtained their Uganda Certificate of Education (UCE) results. For specific requirements and subject combination options, please contact the school directly at amuscollegeschool@gmail.com or call +256 782 442 940.
+
+Q: What documents do I need to apply?
+A: For the most up-to-date list of required documents, please contact the admissions office at amuscollegeschool@gmail.com or call +256 782 442 940. Our team will walk you through everything you need to bring.
+
+Q: Does ACS have a registration fee?
+A: Yes. The registration fee is UGX 100,000. This is a one-time fee paid when registering a student.
+
+
+=============================================================
+SECTION 5 — FEES & PAYMENTS
+=============================================================
+
+Q: What are the school fees at Amus College School?
+A: The fees for the 2026 academic year are as follows:
+
+O-LEVEL (Senior 1 — Senior 4):
+- School Fees: UGX 1,500,000 per term
+- Uniform: UGX 400,000
+- Total: UGX 1,900,000
+
+A-LEVEL (Senior 5 — Senior 6):
+- School Fees: UGX 1,500,000 per term
+- Uniform: UGX 420,000
+- Total: UGX 1,920,000
+
+Registration Fee (one-time, new students only): UGX 100,000
+
+Q: How much is the uniform at Amus College School?
+A: The uniform costs UGX 400,000 for O-Level students and UGX 420,000 for A-Level students.
+
+Q: How do I pay school fees?
+A: Fees are paid using the SchoolPay facility. When your child is enrolled, you will be issued a Student SchoolPay Code that you use to make all payments.
+
+HOW TO PAY SCHOOL FEES:
+- MTN Mobile Money: Dial *165*4*3*2*1# then select 1 — Pay school fees
+- Airtel Money: Dial *185*6*2# then select 1 — Pay school fees
+
+HOW TO PAY FOR UNIFORM:
+- MTN Mobile Money: Dial *165*4*3*2*1# then select 3 — Pay other fees
+- Airtel Money: Dial *185*6*2# then select 2 — Pay other fees
+
+Q: Can I pay fees in installments?
+A: For information about payment plans or installments, please contact the school directly at amuscollegeschool@gmail.com or call +256 782 442 940. Our team will advise you on the options available.
+
+Q: Are there any additional costs beyond school fees?
+A: The main costs are the school fees (UGX 1,500,000), uniform, and the one-time registration fee of UGX 100,000 for new students. For a full breakdown of any additional requirements, please contact the school at amuscollegeschool@gmail.com.
+
+
+=============================================================
+SECTION 6 — SCHOLARSHIPS
+=============================================================
+
+Q: Does Amus College School offer scholarships?
+A: Yes! Amus College School has a strong scholarship programme. In 2024, we successfully enrolled 350 students under academic and football scholarships. These scholarships are designed to open doors for deserving students who may not otherwise have access to quality education.
+
+Q: What types of scholarships does ACS offer?
+A: Amus College School offers two main types of scholarships:
+1. Academic Scholarships — awarded to students who demonstrate exceptional academic ability
+2. Football Scholarships — awarded to students with outstanding football talent
+
+Q: How do I apply for a scholarship at ACS?
+A: To find out more about scholarship availability and how to apply, please contact the school directly at amuscollegeschool@gmail.com or call +256 782 442 940. Our team will guide you through the process.
+
+
+=============================================================
+SECTION 7 — SPORTS
+=============================================================
+
+Q: What sports does Amus College School offer?
+A: Amus College School offers a comprehensive sports programme including:
+- Football (boys and girls)
+- Basketball (boys and girls)
+- Netball
+- Volleyball
+- Athletics
+
+We have state-of-the-art sports facilities including netball, volleyball, basketball, and football pitches, as well as a professional-grade football turf.
+
+Q: How good is the football programme at Amus College School?
+A: The football programme at ACS is one of the finest in East Africa. Our major achievements include:
+- 2024 FEASSA East African Champions in Boys' Football (beat St. Mary's Kitende 1-0 in a final hosted at ACS)
+- 2024 FEASSA runners-up (lost to St. Julian in Masaka final)
+- Represented Uganda at the International Schools Championship in China (2024) — drew 2-2 with China, lost on penalties; girls reached the semi-finals
+- Teso Zonal Champions (boys and girls) for 3 consecutive years: 2024, 2025, 2026
+- Dominant in Teso Zonal Games since inception in 2014
+- Girls won the National Trophy in 2023 in Mbarara (1-0 vs St. Noa Girls; goal by Shalyne Opisa)
+- ACS women's team won the Uganda Cup in 2025 (1-0 vs Kawempe Muslim at Philip MTN Omondi Stadium) in the Finance Trust Bank FUFA Women Super League
+
+Q: Has ACS produced professional footballers?
+A: Yes! Several ACS alumni have gone on to professional football careers abroad:
+- Toto Majub Bran (former ACS captain) — signed for Atlanta United 2 in the USA
+- Musabbah Hakim (2024 USSSA Golden Boot winner) — joined Virginia Commonwealth University, USA
+- Allan Oyirwoth — MVP at the 2023 Uganda National Football Championship, currently signed with New England Revolution (MLS), USA
+- Mukisa Emmanuel, Ocira Lazarus, Ssekamate Alvin, Wasswa Mukalazi Ismael, Denis Ssemujju — all joined Eastern Florida State College, USA for football and studies
+
+Q: Have ACS players been called up to national football teams?
+A: Yes! Several ACS players have represented Uganda at national level:
+- Uganda National U20 Football Team: Toto Majub, Mansur Bashir, Nsubuga Chris, Ronald Ssonko
+- Uganda National U17 Girls Team: Taminsi Shafiga, Aujat Doreen, Kakai Asia, Nambozo Dorcus, Kainza Joyce, Adeke Angela, Nabuzale Emily, Nambuya Shalom, Namataka Mariam
+- Uganda National Women's Football Team: Nambozo Zabina
+
+Q: How is the basketball programme at Amus College School?
+A: The basketball programme at ACS is equally impressive:
+- 2024 FEASSA East African Basketball Champions (hosted at ACS and Bukedea Comprehensive School)
+- 2025 National Basketball Champions (hosted at Bukedea Comprehensive School)
+Our boys' team has established itself as one of the finest in Uganda and East Africa.
+
+Q: Does ACS have a girls' football team?
+A: Yes! The ACS girls' football team is one of the best in Uganda. They won the National Trophy in 2023, represented Uganda in China in 2024, and play in the Finance Trust Bank FUFA Women Super League, winning the Uganda Cup in 2025.
+
+Q: What sports facilities does ACS have?
+A: Amus College School has world-class sports facilities including:
+- Professional-grade football turf (which hosted the 2024 FEASSA East African Games)
+- Football pitches
+- Basketball courts
+- Netball courts
+- Volleyball courts
+All facilities were newly constructed as part of the school's major investment in sports infrastructure.
+
+
+=============================================================
+SECTION 8 — MUSIC, DANCE & DRAMA (MDD)
+=============================================================
+
+Q: Does Amus College School have a Music, Dance and Drama programme?
+A: Yes! MDD is one of ACS's strongest co-curricular programmes. Our performers have dominated the Teso region and achieved national recognition.
+
+Q: How has ACS performed in MDD competitions?
+A: ACS has been outstanding in MDD:
+- Teso Secondary Schools MDD Champions every year from 2017 to date — an unbroken streak
+- 3rd place nationally for three consecutive years: 2023 (held in Arua), 2024 (held in Jinja), 2025 (held in Wakiso, Buddo)
+- The ACS Chapel Choir finished 3rd at the International Hymn Festival in 2025, hosted at ACK Mombasa Memorial Cathedral in Kenya
+
+Q: Does ACS have a chapel choir?
+A: Yes. The ACS Chapel Choir is an active and talented group that represents the school in church and choral competitions. In 2025, the choir achieved 3rd place at the International Hymn Festival at ACK Mombasa Memorial Cathedral in Kenya — bringing international recognition to the school.
+
+
+=============================================================
+SECTION 9 — SCOUTING
+=============================================================
+
+Q: Does Amus College School have a scout club?
+A: Yes. The Amus College School Scout Club is an active and award-winning club that develops students' skills in leadership, entrepreneurship, patriotism, and environmental conservation.
+
+Q: What has the ACS Scout Club achieved?
+A: The ACS Scout Club has achieved the following:
+- Represented the district at the national level from 2023 to 2024
+- Won the Sustainability Award at the Kaazi National Scout Camping and Training Ground in 2024
+- Established a thriving mango farm at the school through tree planting initiatives
+- Participated in the most recent national scouting camp at Kaazi
+Our scouts are community builders and future leaders.
+
+
+=============================================================
+SECTION 10 — DEBATING & INTELLECTUAL COMPETITIONS
+=============================================================
+
+Q: Does ACS participate in debating competitions?
+A: Yes! The ACS debate team has made a strong mark in intellectual competitions.
+
+Q: What has the ACS debate team achieved?
+A: Recent achievements include:
+- Won the Writing Our World Eastern Region Debate Championship with a flawless 5-0 unanimous decision, beating 12 competing schools including host Soroti Secondary School
+- Odele Francis represented ACS in the public speech category at the National Debate Council (NDC) Championship at King's College Budo
+- ACS was runners-up in a national Bible Quiz, showcasing students' depth of knowledge and preparation
+
+Q: Has ACS won any debating competitions?
+A: Yes! Most notably, the ACS debate team dominated the Writing Our World Eastern Region Debate Championship, defeating all 12 competing schools with a perfect 5-0 unanimous decision against host school Soroti Secondary School.
+
+
+=============================================================
+SECTION 11 — FACILITIES & CAMPUS LIFE
+=============================================================
+
+Q: What facilities does Amus College School have?
+A: Amus College School has a wide range of facilities to support student life and learning:
+- Modern classrooms and teaching spaces
+- ICT/computer lab
+- Professional football turf and multiple sports pitches (football, basketball, netball, volleyball)
+- Girls' dormitory (complete and fully operational)
+- Boys' dormitory (new facility currently under construction, expected ready end of 2025)
+- School chapel
+- Dining hall
+- Scouting farm (mango farm established by the Scout Club)
+
+Q: Does ACS have dormitories?
+A: Yes. Amus College School is a full boarding school with separate dormitory facilities for boys and girls. The girls' dormitory is fully complete and operational. A brand new boys' dormitory is currently under construction and expected to be ready by end of 2025.
+
+Q: What do students eat at Amus College School?
+A: ACS takes student nutrition seriously. Students enjoy:
+- Chicken and rice every Wednesday
+- Meat and rice every weekend
+Regular balanced meals are provided throughout the week to keep students energised and healthy.
+
+Q: Is ACS a safe environment for students?
+A: Yes. Amus College School is a secure, well-supervised boarding school with dedicated staff who look after students' welfare, safety, and wellbeing around the clock.
+
+
+=============================================================
+SECTION 12 — SCHOOL VALUES & COMMUNITY
+=============================================================
+
+Q: What values does Amus College School stand for?
+A: Amus College School is built on the following values:
+- Academic excellence
+- Moral integrity and character development
+- Spiritual grounding and faith
+- Physical fitness and sporting excellence
+- Artistic expression and creativity
+- Community service and leadership
+- Inclusivity — the school celebrates students of all faiths and backgrounds
+
+Q: Is ACS a religious school?
+A: Amus College School has a strong faith foundation and a vibrant school chapel and chapel choir. The school welcomes students of all faiths and celebrates diversity — for example, Eid celebrations are a joyful whole-school event. The school acknowledges God's guidance in all its achievements.
+
+Q: What is the ACOSA?
+A: ACOSA is the Amus College Old Students Association, representing over 5,000 alumni. The association keeps former students connected to the school and to each other. As their Chairperson says: "Once an Amusian, always an Amusian."
+
+Q: Does ACS have a strong alumni network?
+A: Yes! ACS alumni include accountants, medical doctors, marketing consultants, professional footballers, and many more. ACOSA, the alumni association, represents over 5,000 former students and plays an active role in supporting the school and mentoring current students.
+
+
+=============================================================
+SECTION 13 — FREQUENTLY ASKED QUESTIONS (GENERAL)
+=============================================================
+
+Q: Is Amus College School a good school?
+A: Amus College School is widely regarded as one of Uganda's top schools. It was ranked 3rd in Uganda in 2023, has a 95% pass rate, consistently sends students to university on government scholarships, and has produced East African champions in football and basketball. Parents and students from across Uganda and East Africa choose ACS for its combination of academic rigour, world-class sports, and strong moral values.
+
+Q: Why should I choose Amus College School?
+A: Here are some of the reasons families choose ACS:
+- Ranked 3rd in Uganda (2023) with a 95% pass rate
+- East African Champions in football and basketball (2024)
+- Consistent national MDD finalists since 2017
+- 350 scholarship students enrolled in 2024
+- State-of-the-art sports facilities including a professional football turf
+- Strong faith foundation and moral values
+- Warm, inclusive school community
+- Scholarship opportunities for deserving students
+- Alumni playing professional football in the USA and studying at US universities
+
+Q: Can I visit the school before applying?
+A: Yes, we welcome visits from prospective students and parents. To arrange a visit, please call us on +256 782 442 940 or email amuscollegeschool@gmail.com and we will be happy to host you.
+
+Q: How do I apply online?
+A: Visit our admissions page at https://amuscollegeschool.com/admissions and follow the instructions. You can also contact us at amuscollegeschool@gmail.com or call +256 782 442 940 for personal guidance through the process.
+
+Q: What makes ACS different from other schools?
+A: What sets Amus College School apart is the combination of academic excellence, elite sports, vibrant arts, strong faith values, and a genuine commitment to every student's success — not just the top performers. With scholarship programmes, world-class facilities, and a track record of producing East African champions, university graduates, and professional athletes, ACS nurtures the whole person. As our motto says: Let There Be Light.
+
+Q: I have a question that isn't answered here. What should I do?
+A: We'd love to help! Please reach out directly to our team:
+- Call: +256 782 442 940 / +256 772 303 282 / +256 779 964 478
+- Email: amuscollegeschool@gmail.com
+- WhatsApp: +256 782 442 940 or +256 779 964 478
+- Apply online: https://amuscollegeschool.com/admissions
+
+=============================================================
+END OF KNOWLEDGE BASE
+=============================================================
