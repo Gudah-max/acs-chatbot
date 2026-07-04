@@ -86,11 +86,15 @@ app.post('/api/chat', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 1024,
+      thinking: { type: 'disabled' },
       system: systemPrompt,
       messages,
     });
 
-    const reply = response.content[0].text;
+    const textBlock = response.content.find((block) => block.type === 'text');
+    const reply = textBlock
+      ? textBlock.text
+      : "I'm sorry, something went wrong on my end. Please try again or contact the school directly at amuscollegeschool@gmail.com.";
     res.json({ reply });
   } catch (err) {
     console.error('Claude API error:', err);
