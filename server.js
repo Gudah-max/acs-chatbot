@@ -9,6 +9,11 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render sits behind a reverse proxy; trust the first hop so req.ip
+// reflects the real client IP instead of the proxy's, which would
+// otherwise make the rate limiter treat every visitor as one client.
+app.set('trust proxy', 1);
+
 // Load knowledge base once at startup
 const knowledgeBase = fs.readFileSync(
   path.join(__dirname, 'acs-knowledge.txt'),
