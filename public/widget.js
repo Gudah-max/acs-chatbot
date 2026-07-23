@@ -111,10 +111,31 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  function escapeHtml(s) {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Render a safe subset of Markdown so replies don't show raw ** or *.
+  // Always escape first, then apply formatting on the escaped string.
+  function formatText(text) {
+    var html = escapeHtml(text);
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  }
+
   function addMessage(text, role) {
     var msg = document.createElement('div');
     msg.className = 'acs-msg ' + (role === 'user' ? 'acs-msg-user' : 'acs-msg-bot');
-    msg.textContent = text;
+    if (role === 'user') {
+      msg.textContent = text;
+    } else {
+      msg.innerHTML = formatText(text);
+    }
     messagesEl.appendChild(msg);
     scrollToBottom();
     return msg;
