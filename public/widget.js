@@ -201,7 +201,7 @@
 
     if (!welcomeShown) {
       welcomeShown = true;
-      var welcome = "Hello! I'm Amara, the AI assistant for Amus College School. How can I help you today? 👋";
+      var welcome = "Hello! I'm Amara, the AI assistant for Amus College School. How can I help you today?";
       addMessage(welcome, 'assistant');
       conversationHistory.push({ role: 'assistant', content: welcome });
       showQuickReplies();
