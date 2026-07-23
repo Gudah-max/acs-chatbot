@@ -33,6 +33,17 @@
     '#acs-bubble:hover{transform:scale(1.08);box-shadow:0 8px 28px rgba(192,39,45,.5),0 4px 12px rgba(14,27,52,.3);}',
     '#acs-bubble:active{transform:scale(.95);}',
     '#acs-bubble:focus-visible,#acs-send:focus-visible,#acs-close:focus-visible{outline:3px solid ' + COLORS.yellow + ';outline-offset:2px;}',
+    // Greeting teaser — nudges first-time visitors that the launcher is Amara.
+    '@keyframes acsTeaserIn{from{transform:translateY(12px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}',
+    '#acs-teaser{position:fixed;bottom:96px;right:24px;max-width:264px;background:#fff;border:1px solid ' + COLORS.border + ';border-radius:16px;box-shadow:0 12px 32px rgba(14,27,52,.20),0 3px 10px rgba(192,39,45,.14);padding:14px 30px 14px 14px;display:none;gap:11px;align-items:flex-start;z-index:2147483646;cursor:pointer;font-family:' + FONT_BODY + ';}',
+    '#acs-teaser.acs-visible{display:flex;animation:acsTeaserIn .4s cubic-bezier(.16,1,.3,1) both;}',
+    '#acs-teaser:hover{box-shadow:0 16px 40px rgba(14,27,52,.26),0 4px 14px rgba(192,39,45,.18);}',
+    '#acs-teaser:focus-visible,#acs-teaser-close:focus-visible{outline:3px solid ' + COLORS.yellow + ';outline-offset:2px;}',
+    '#acs-teaser img{width:34px;height:34px;border-radius:999px;object-fit:contain;background:' + COLORS.navy + ';padding:2px;flex-shrink:0;}',
+    '#acs-teaser-name{font-family:' + FONT_DISPLAY + ';font-weight:600;font-size:14px;color:' + COLORS.navy + ';line-height:1.3;margin-bottom:2px;}',
+    '#acs-teaser-text{font-size:13px;line-height:1.5;color:' + COLORS.botText + ';}',
+    '#acs-teaser-close{position:absolute;top:6px;right:8px;background:none;border:none;color:rgba(14,27,52,.4);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:4px;transition:color .15s,background .15s;}',
+    '#acs-teaser-close:hover{color:' + COLORS.navy + ';background:rgba(14,27,52,.06);}',
     '#acs-window{position:fixed;bottom:100px;right:24px;width:400px;height:550px;background:#fff;border-radius:22px;box-shadow:0 18px 48px rgba(14,27,52,.22),0 4px 16px rgba(14,27,52,.12);z-index:2147483645;display:none;flex-direction:column;overflow:hidden;font-family:' + FONT_BODY + ';}',
     '#acs-window.acs-open{display:flex;}',
     '#acs-header{background:' + COLORS.navy + ';padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}',
@@ -65,6 +76,7 @@
     '#acs-send:active{transform:scale(.96);}',
     '@media(max-width:480px){#acs-window{width:100vw;height:100vh;bottom:0;right:0;border-radius:0;}}',
     '@media(max-width:480px){#acs-bubble{bottom:16px;right:16px;}}',
+    '@media(max-width:480px){#acs-teaser{right:16px;bottom:88px;max-width:calc(100vw - 32px);}}',
   ].join('');
   document.head.appendChild(style);
 
@@ -96,8 +108,23 @@
     '</div>',
   ].join('');
 
+  var teaser = document.createElement('div');
+  teaser.id = 'acs-teaser';
+  teaser.setAttribute('role', 'button');
+  teaser.setAttribute('tabindex', '0');
+  teaser.setAttribute('aria-label', 'Open chat with Amara');
+  teaser.innerHTML = [
+    '<img src="https://amuscollegeschool.com/images/logo.png" alt="" onerror="this.style.display=\'none\'">',
+    '<div>',
+    '  <div id="acs-teaser-name">Amara</div>',
+    '  <div id="acs-teaser-text">Hi, I\'m your ACS assistant. Ask me anything about admissions, fees, or sports.</div>',
+    '</div>',
+    '<button id="acs-teaser-close" aria-label="Dismiss">&times;</button>',
+  ].join('');
+
   document.body.appendChild(bubble);
   document.body.appendChild(win);
+  document.body.appendChild(teaser);
 
   var messagesEl = document.getElementById('acs-messages');
   var typingEl = document.getElementById('acs-typing');
@@ -105,8 +132,30 @@
   var inputEl = document.getElementById('acs-input');
   var sendBtn = document.getElementById('acs-send');
   var closeBtn = document.getElementById('acs-close');
+  var teaserCloseBtn = document.getElementById('acs-teaser-close');
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+  var TEASER_KEY = 'acs_teaser_seen';
+
+  function teaserSeen() {
+    try { return sessionStorage.getItem(TEASER_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function markTeaserSeen() {
+    try { sessionStorage.setItem(TEASER_KEY, '1'); } catch (e) {}
+  }
+
+  function showTeaser() {
+    if (isOpen || teaserSeen()) return;
+    teaser.classList.add('acs-visible');
+  }
+
+  function hideTeaser() {
+    teaser.classList.remove('acs-visible');
+    markTeaserSeen();
+  }
+
   function scrollToBottom() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
@@ -217,6 +266,7 @@
 
   function openChat() {
     isOpen = true;
+    hideTeaser();
     win.classList.add('acs-open');
     bubble.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
 
@@ -247,6 +297,24 @@
     closeChat();
   });
 
+  teaser.addEventListener('click', function () {
+    hideTeaser();
+    openChat();
+  });
+
+  teaser.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      hideTeaser();
+      openChat();
+    }
+  });
+
+  teaserCloseBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    hideTeaser();
+  });
+
   sendBtn.addEventListener('click', function () {
     sendMessage(inputEl.value);
   });
@@ -257,5 +325,10 @@
       sendMessage(inputEl.value);
     }
   });
+
+  // Show the greeting teaser once per session, after the visitor has settled.
+  if (!teaserSeen()) {
+    setTimeout(showTeaser, 3500);
+  }
 
 })();
